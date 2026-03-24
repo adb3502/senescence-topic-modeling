@@ -1,0 +1,25 @@
+# Large data files — not tracked in git
+data/raw/
+
+# Seurat objects and fitted model checkpoints
+analysis/qc_output/*.rds
+analysis/lda_poc/*.rds
+analysis/integration_output/*.rds
+
+# Keep figures
+!analysis/qc_output/*.svg
+!analysis/qc_output/*.png
+!analysis/lda_poc/*.svg
+!analysis/lda_poc/*.png
+!analysis/integration_output/*.svg
+!analysis/integration_output/*.png
+
+# R session artifacts
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# OS
+.DS_Store
+Thumbs.db
