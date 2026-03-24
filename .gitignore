@@ -3,6 +3,7 @@ data/raw/
 
 # Seurat objects and fitted model checkpoints
 analysis/qc_output/*.rds
+analysis/qc_output/qc_metrics.csv
 analysis/lda_poc/*.rds
 analysis/integration_output/*.rds
 
