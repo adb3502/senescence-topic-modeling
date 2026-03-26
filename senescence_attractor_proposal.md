@@ -124,13 +124,15 @@ This dataset is ideal because: - 7 timepoints provide genuine temporal resolutio
 
 ### Step 1: Preprocessing and quality control
 
-Standard scRNA-seq pipeline. Library size normalization, log1p transformation, highly variable gene selection, batch correction across timepoints using Harmony. Reproduce the original UMAP and cluster structure to verify data integrity.
+All analysis is implemented in R (v4.5.3). Raw MTX matrices are loaded per sample; author-filtered cell barcodes are extracted from the h5ad files via `rhdf5` (SeuratDisk is incompatible with Seurat v5). Seurat v5 objects are created with duplicate gene symbols resolved by `make.unique`. MT- and ribosomal genes (RP[SL]) are computed as percent-of-library for QC filtering. No log-normalization is applied downstream of QC — the multinomial observation model in Layer 1 assumes raw integer counts; library size is handled implicitly by the sampling model. Reproduce the original cell count structure across conditions and timepoints to verify data integrity.
 
 ### Step 2: Topic model fitting
 
-Fit a correlated topic model (CTM) with $K$ topics selected by held-out perplexity and biological coherence. Initialize with $K \in \{5, 8, 12, 15\}$ and compare. Use the Python package `scholar` or implement in Pyro. Validate topic coherence by gene set enrichment of top genes per topic against MSigDB Hallmarks.
+**POC (LDA via Poisson NMF):** The initial implementation uses `fastTopics` (Carbonetto et al., Genome Biology 2023) in R, which fits a Poisson NMF model. By the Carbonetto-Sarkar-Stephens equivalence result, Poisson NMF yields identical maximum-likelihood estimates to multinomial LDA (Dirichlet prior) — the two are the same model at MLE, differing only in parameterization. Dirichlet is chosen over the logistic-normal (CTM) prior for the POC because senescence programs genuinely anticorrelate: proliferative programs collapse as SASP activates, and LDA's Dirichlet prior does not suppress anticorrelation the way CTM's positive-definite covariance does. K is selected over the range {3, 4, 5, 6, 8} using held-out log-likelihood (`loglik_multinom_topic_model`); each fitted model is checkpointed before the next K is attempted. Corpus-style gene filtering removes MT- and RP[SL] genes (stop words) and genes detected in fewer than 1% or more than 95% of cells, retaining approximately 10,700 genes.
 
-The CTM produces per-cell topic weight vectors $\theta_{c,t}$ and topic gene distributions $\phi_k$.
+**Full framework (DCTM):** The POC serves as the foundation for the dynamic correlated topic model described in Layer 3. Once topics are validated biologically on sc2 and sc78 (the control samples), the DCTM will be fitted jointly across timecourse samples (sc5, sc6, sc9) allowing topic gene distributions to drift over time. K for the full model will be initialized from the K selected at the POC stage. Validate topic coherence by gene set enrichment of top genes per topic against MSigDB Hallmarks using `fgsea` or equivalent.
+
+The topic model produces per-cell topic weight vectors $\theta_{c,t}$ and topic gene distributions $\phi_k$.
 
 ### Step 3: Dynamic extension
 
@@ -215,18 +217,19 @@ Refutation of the pseudohypoxia hypothesis does not refute the framework. The fr
 
 ## 9. Tools and Implementation
 
-| Task                           | Tool                             |
-|--------------------------------|----------------------------------|
-| Preprocessing                  | Scanpy (Python)                  |
-| Batch correction               | Harmony                          |
-| Topic model (CTM)              | Pyro or scholar                  |
-| Subpopulation decomposition    | Gaussian mixture model (sklearn) |
-| Subpopulation lineage tracking | Python Optimal Transport (POT)   |
-| Optimal transport flow         | Python Optimal Transport (POT)   |
-| Gene set enrichment            | GSEApy                           |
-| Visualization                  | matplotlib, seaborn, scanpy      |
+| Task                           | Tool                                        |
+|--------------------------------|---------------------------------------------|
+| QC and object construction     | R: rhdf5, Seurat v5                         |
+| Topic model POC (LDA)          | R: fastTopics (Poisson NMF)                 |
+| Topic model full (DCTM)        | R: Pyro via reticulate, or scholar (Python) |
+| Batch correction               | R: Harmony (harmonyR)                       |
+| Subpopulation decomposition    | R: mclust or sklearn via reticulate         |
+| Subpopulation lineage tracking | Python Optimal Transport (POT)              |
+| Optimal transport flow         | Python Optimal Transport (POT)              |
+| Gene set enrichment            | R: fgsea or GSEApy via reticulate           |
+| Visualization                  | R: ggplot2, cowplot (publication figures)   |
 
-All code will be deposited on GitHub with reproducible Snakemake pipeline. Data is publicly available on GEO (GSE223128).
+All code is deposited on GitHub (senescence-topic-modeling). Data is publicly available on GEO (GSE223128). GPU-accelerated fitting targets an RTX 5060 workstation (WSL2) using the `torch` R package with LibTorch CUDA backend.
 
 ------------------------------------------------------------------------
 
