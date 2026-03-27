@@ -1,6 +1,6 @@
 library(Matrix)
 
-base <- "D:/Projects/Topic Modeling/data/raw/extracted"
+base <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/data/raw/extracted"
 
 samples <- list(
   sc5 = "GSM6940121_sc5",

@@ -9,7 +9,7 @@ library(ggridges)
 library(dplyr)
 library(tidyr)
 
-out_dir <- "D:/Projects/Topic Modeling/analysis/qc_output"
+out_dir <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/analysis/qc_output"
 seu_list <- readRDS(file.path(out_dir, "seu_list_qc.rds"))
 
 # ---- Theme ------------------------------------------------------------------

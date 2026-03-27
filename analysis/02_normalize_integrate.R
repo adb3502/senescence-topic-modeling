@@ -10,8 +10,8 @@ library(cowplot)
 library(patchwork)
 library(dplyr)
 
-qc_dir  <- "D:/Projects/Topic Modeling/analysis/qc_output"
-out_dir <- "D:/Projects/Topic Modeling/analysis/integration_output"
+qc_dir  <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/analysis/qc_output"
+out_dir <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/analysis/integration_output"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # ---- Theme ------------------------------------------------------------------

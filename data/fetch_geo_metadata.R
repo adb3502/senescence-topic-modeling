@@ -6,7 +6,7 @@ if (!requireNamespace("GEOquery", quietly = TRUE)) {
 library(GEOquery)
 
 # Fetch series metadata (soft file only, no expression matrices yet)
-gse <- getGEO("GSE223128", GSEMatrix = FALSE, destdir = "D:/Projects/Topic Modeling/data/raw")
+gse <- getGEO("GSE223128", GSEMatrix = FALSE, destdir = "D:/Users/adb/Topic Modeling/senescence-topic-modeling/data/raw")
 
 # Print series-level info
 cat("=== Series Title ===\n")

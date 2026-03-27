@@ -7,8 +7,8 @@ library(rhdf5)
 library(ggplot2)
 library(patchwork)
 
-raw_dir <- "D:/Projects/Topic Modeling/data/raw/extracted"
-out_dir <- "D:/Projects/Topic Modeling/analysis/qc_output"
+raw_dir <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/data/raw/extracted"
+out_dir <- "D:/Users/adb/Topic Modeling/senescence-topic-modeling/analysis/qc_output"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 sample_meta <- list(
@@ -40,7 +40,24 @@ load_sample <- function(name, info) {
   p <- file.path(raw_dir, info$prefix)
 
   # 1. Get author-filtered cell barcodes from h5ad
-  h5_path      <- file.path(raw_dir, info$h5ad)
+  # GEO distributes .h5ad.gz; download_geo_data.R decompresses to .h5ad
+  h5_path <- file.path(raw_dir, info$h5ad)
+  if (!file.exists(h5_path)) {
+    gz_path <- paste0(h5_path, ".gz")
+    if (file.exists(gz_path)) {
+      cat("  Decompressing", basename(gz_path), "...\n")
+      con_in  <- gzfile(gz_path, "rb")
+      con_out <- file(h5_path, "wb")
+      repeat {
+        chunk <- readBin(con_in, raw(), n = 10L * 1024L * 1024L)
+        if (length(chunk) == 0L) break
+        writeBin(chunk, con_out)
+      }
+      close(con_in); close(con_out)
+    } else {
+      stop("h5ad not found: ", h5_path, " (also checked .gz)")
+    }
+  }
   author_cells <- h5read(h5_path, "/obs/_index")
   cat("  Author-filtered cells:", length(author_cells), "\n")
 
