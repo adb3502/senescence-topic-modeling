@@ -28,7 +28,7 @@ consensus_cols <- c(
   C = "#44AA99",   # rank 7
   G = "#882255",   # rank 8
   I = "#DDCC77",   # rank 9
-  K = "#88CCEE",   # rank 10
+  K = "#AA4499",   # rank 10 — purple
   J = "#332288",   # rank 11
   L = "#999933"    # rank 12
 )
